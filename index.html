@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>my frutiger aero site</title>
+
+  <!-- normal mobile scaling: the layout now adapts to the screen by itself -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- 7.css -->
+  <link rel="stylesheet" href="https://unpkg.com/7.css">
+
+  <!-- your styling (load AFTER 7.css so it can override it) -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="jumpscare" hidden>
+  <img src="blink/scare.JPG" alt="">
+</div>
+
+<header class="site-header">
+  <h1>DavidMajernik<span>.com</span></h1>
+</header>
+
+<div class="container">
+
+  <!-- LEFT: all the small boxes. Add new boxes inside here and they stack automatically. -->
+  <div class="side">
+
+    <!-- first container -->
+    <div class="one">
+      <img src="blink/yeah.gif" class="top-blinkie"> 
+      <img src="blink/DavidMajernik.gif" class="top-blinkie"> 
+      <img src="blink/DavidMajernik.gif" class="top-blinkie"> 
+      <img src="blink/yeah.gif" class="top-blinkie"> 
+    </div>
+
+    <!-- second container -->
+    <div class="two">
+    <img src="blink/tubi.gif" class="top-blinkie">
+      <div class="twotwo">
+        <div class="hello"> I am David Majernik
+          <img src="blink/boner.gif"> I will be the best <tubi>tubi director</tubi>. Fear my wrath. <br>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW BOXES GO HERE -->
+
+  </div>
+
+  <!-- CENTER: the theater (main display) -->
+  <div class="main">
+    <div class="window">
+
+      <div class="theater">
+        <div class="valance"></div>
+        <div class="curtain left"></div>
+        <div class="curtain right"></div>
+
+        <div class="screen-frame">
+          <!-- the YouTube player gets created here by the script below -->
+          <div id="theater-screen"></div>
+        </div>
+      </div>
+
+      <div class="now-showing">
+        <div class="marquee-title">NOW SHOWING: <span id="now-title"></span></div>
+        <!-- the movie list itself lives in the script at the bottom of this file -->
+        <div class="theater-controls">
+          <button id="film-prev" title="Previous movie">&#9664;&#9664;</button>
+          <select id="film-picker" title="Pick a movie"></select>
+          <button id="film-next" title="Next movie">&#9654;&#9654;</button>
+        </div>
+      </div>
+
+      <!-- blinkie marquee: just list your blinkies here, the script repeats them to fill the width -->
+      <div class="buttons-n-blinkers">
+        <div>
+          <a href="https://www.youtube.com/@davidmajernik7066" target="_blank" rel="noopener">
+            <img src="blink/Youtube.gif">
+          </a>
+          <a href="https://www.instagram.com/dawidmajernik/" target="_blank" rel="noopener">
+            <img src="blink/Instagram.gif">
+          </a>
+          <a href="https://github.com/DavidMajernik" target="_blank" rel="noopener">
+            <img src="blink/Github.gif">
+          </a>
+          <a href="https://www.linkedin.com/in/davidmajernik" target="_blank" rel="noopener">
+            <img src="blink/Linkedin.gif">
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: chat box / guestbook -->
+  <div class="chat">
+  <div class="chat-header">Leave a message!</div>
+  <div class="chat-messages" id="chat-messages"></div>
+
+  <!-- shown until the visitor has picked a name -->
+  <form class="chat-form" id="claim-form" autocomplete="off" hidden>
+    <input id="claim-name" type="text" placeholder="Pick a name" maxlength="16">
+    <div class="chat-note" id="claim-note">3-16 letters, numbers or _. You can't change it later!</div>
+    <button type="submit" id="claim-btn">Pick name</button>
+  </form>
+
+  <!-- shown once they have a name -->
+  <form class="chat-form" id="chat-form" autocomplete="off" hidden>
+    <div class="chat-note">Chatting as <b id="chat-as"></b></div>
+    <textarea id="chat-text" placeholder="Say hi!" maxlength="200" rows="3"></textarea>
+    <button type="submit" id="chat-send">Send</button>
+  </form>
+</div>
+
+</div>
+
+<script>
+  // ================= blinkie marquee =================
+  function setupMarquee(marquee) {
+    const track = marquee.children[0];
+
+    // remember your original blinkies the first time (so resizing can rebuild)
+    if (!marquee._originals) {
+      marquee._originals = [...track.children].map((n) => n.cloneNode(true));
+    }
+    const originals = marquee._originals;
+    if (!originals.length) return;
+
+    track.textContent = '';
+    track.className = 'marquee-track';
+
+    const addSet = (group) =>
+      originals.forEach((n) => group.appendChild(n.cloneNode(true)));
+
+    const groupA = document.createElement('div');
+    groupA.className = 'marquee-group';
+    addSet(groupA);
+    track.appendChild(groupA);
+
+    // keep adding sets until one group is at least as wide as the marquee
+    let guard = 0;
+    while (groupA.offsetWidth < marquee.clientWidth && guard++ < 50) {
+      addSet(groupA);
+    }
+
+    // second identical group = the seamless loop
+    track.appendChild(groupA.cloneNode(true));
+
+    // constant speed: 40 pixels per second (raise it to go faster)
+    track.style.animationDuration = groupA.offsetWidth / 40 + 's';
+  }
+
+  function setupAllMarquees() {
+    document.querySelectorAll('.buttons-n-blinkers').forEach(setupMarquee);
+  }
+
+  // wait for the blinkie images to load so their widths can be measured
+  window.addEventListener('load', setupAllMarquees);
+
+  // rebuild if the window is resized (debounced)
+  let marqueeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(marqueeTimer);
+    marqueeTimer = setTimeout(setupAllMarquees, 200);
+  });
+
+  // ================= movie theater =================
+
+  // YOUR MOVIE LIST (plays top to bottom, then loops back to the start).
+  // id = the part after v= in a youtube link. Add or remove lines freely.
+  const movies = [
+    { id: "BnjpJGetkyo", title: "Discrete Magematics 1" },
+    { id: "aQ4fpmerKiU", title: "Discrete Magematics 2" },
+    { id: "BM92lyC3Y0M", title: "Season's Feedings 1" },
+    { id: "hg8zuBBXHe0", title: "Juna - Clairo [GNOME VISUALIZER]" },
+    { id: "UxCz5foEB9k", title: "spunchbob" },
+    { id: "UckfAHzV0jw", title: "Poland." },
+    { id: "ZSo4CHKWpeM", title: "Going Bananas" },
+    { id: "YfRgKPW6DVI", title: "FIBREGLASS" },
+    { id: "_OWqN8CObTc", title: "Playboi Carti - Flatbed Freestyle [Unofficial Video]" },
+  ];
+
+  let current = 0;
+  let player = null;
+  let errorStreak = 0;
+
+  const nowTitle = document.getElementById('now-title');
+  const picker = document.getElementById('film-picker');
+
+  // fill the dropdown from the list
+  movies.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m.title;
+    picker.appendChild(opt);
+  });
+
+  // update the "now showing" text + dropdown
+  function showMovie(i) {
+    current = (i + movies.length) % movies.length; // wraps around = loop
+    nowTitle.textContent = movies[current].title;
+    picker.value = current;
+  }
+
+  // switch to a movie and play it
+  function playMovie(i) {
+    showMovie(i);
+    if (player && player.loadVideoById) player.loadVideoById(movies[current].id);
+  }
+
+  picker.addEventListener('change', () => playMovie(Number(picker.value)));
+  document.getElementById('film-prev').addEventListener('click', () => playMovie(current - 1));
+  document.getElementById('film-next').addEventListener('click', () => playMovie(current + 1));
+
+  showMovie(0);
+
+  // load the YouTube player API
+  const ytTag = document.createElement('script');
+  ytTag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(ytTag);
+
+  // YouTube calls this by name once the API has loaded
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('theater-screen', {
+      width: '100%',
+      height: '100%',
+      videoId: movies[0].id,
+      host: 'https://www.youtube-nocookie.com',
+      playerVars: { rel: 0, playsinline: 1 },
+      events: {
+        onStateChange: (e) => {
+          if (e.data === YT.PlayerState.PLAYING) errorStreak = 0;
+          // when a movie ends, go to the next one (and loop at the end)
+          if (e.data === YT.PlayerState.ENDED) playMovie(current + 1);
+        },
+        onError: () => {
+          // skip videos that can't be embedded, unless every video fails
+          errorStreak++;
+          if (errorStreak < movies.length) playMovie(current + 1);
+        }
+      }
+    });
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getDatabase, ref, get, update, push, query, orderByKey, limitToLast, onValue, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  // tip: replace "obscenity" with a pinned version from jsdelivr.com once it works
+  import { RegExpMatcher, TextCensor, DataSet, englishDataset, englishRecommendedTransformers,
+           fixedCharCensorStrategy, pattern } from "https://cdn.jsdelivr.net/npm/obscenity/+esm";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyCWeXOAY88e05-kpFs3P_AVOzDnFw1DgOI",
+    authDomain: "websitedatabase-671eb.firebaseapp.com",
+    databaseURL: "https://websitedatabase-671eb-default-rtdb.firebaseio.com",
+    projectId: "websitedatabase-671eb",
+  });
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  // ---------- language filter ----------
+  const dataset = new DataSet().addAll(englishDataset);
+  // add your own banned phrases like this:
+  // dataset.addPhrase((p) => p.setMetadata({ originalWord: "my phrase" }).addPattern(pattern`my phrase`));
+  const matcher = new RegExpMatcher({ ...dataset.build(), ...englishRecommendedTransformers });
+  const censor = new TextCensor();
+  censor.setStrategy(fixedCharCensorStrategy("#"));
+
+  const clean = (s) => censor.applyTo(s, matcher.getAllMatches(s));
+  // names get a stricter check: reject, and also test with "_" removed (f_u_c_k)
+  const badName = (s) => matcher.hasMatch(s) || matcher.hasMatch(s.replace(/_/g, ""));
+  
+  const OWNER_UID = "gbKYD9iXrlc2q4xpicql0dJq0Ho1";
+
+  // ---------- elements ----------
+  const chatBox = document.getElementById('chat-messages');
+  const claimForm = document.getElementById('claim-form');
+  const claimName = document.getElementById('claim-name');
+  const claimNote = document.getElementById('claim-note');
+  const claimBtn = document.getElementById('claim-btn');
+  const chatForm = document.getElementById('chat-form');
+  const chatAs = document.getElementById('chat-as');
+  const chatText = document.getElementById('chat-text');
+  const chatSend = document.getElementById('chat-send');
+
+  let uid = null;
+  let myName = null;
+
+  // ---------- show messages ----------
+  const pad = (n) => String(n).padStart(2, '0');
+  const stamp = (ms) => { const d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+
+  function renderMessages(list) {
+    const stick = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 20;
+    chatBox.textContent = '';
+    list.forEach((m, i) => {
+      const row = document.createElement('div');
+      row.className = i % 2 === 0 ? 'gray' : 'white';
+      const who = document.createElement('span');
+      who.className = 'chat-who';
+      if (m.uid === OWNER_UID) who.classList.add('chat-owner'); // tee hee making my name special
+      who.textContent = clean(m.name || 'Guest User') + ' (' + stamp(m.time) + ')';
+      const body = document.createElement('div');
+      body.textContent = clean(String(m.text || ''));
+      row.appendChild(who);
+      row.appendChild(body);
+      chatBox.appendChild(row);
+    });
+    if (stick) chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  onValue(query(ref(db, 'messages'), orderByKey(), limitToLast(50)), (snap) => {
+    const list = Object.values(snap.val() || {});
+    list.sort((a, b) => a.time - b.time);
+    renderMessages(list);
+  });
+
+  // ---------- sign in + check whether this visitor already has a name ----------
+  function showChatForm() {
+    claimForm.hidden = true;
+    chatForm.hidden = false;
+    chatAs.textContent = myName;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { signInAnonymously(auth); return; }
+    uid = user.uid;
+    const snap = await get(ref(db, 'users/' + uid));
+    if (snap.exists()) { myName = snap.val(); showChatForm(); }
+    else { claimForm.hidden = false; chatForm.hidden = true; }
+  });
+
+  // ---------- pick a name ----------
+  claimForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = claimName.value.trim();
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(name)) {
+      claimNote.textContent = '3-16 letters, numbers or _ only.'; return;
+    }
+    if (badName(name)) {
+      claimNote.textContent = "That name isn't allowed."; return;
+    }
+    claimBtn.disabled = true;
+    try {
+      // both writes succeed together or fail together
+      await update(ref(db), {
+        ['usernames/' + name.toLowerCase()]: uid,
+        ['users/' + uid]: name,
+      });
+      myName = name;
+      showChatForm();
+    } catch (err) {
+      claimNote.textContent = 'That name is taken. Try another!';
+    }
+    claimBtn.disabled = false;
+  });
+  
+  // ---------- jumpscare ----------
+//trigger words/phrases. Whole words only
+const SCARE_WORDS = [
+  "tel aviv",
+  "israel",
+  "OJ",
+  "OJ Simpson",
+  "Jeffrey Epstein",
+  "Epstein",
+  "israeli",
+];
+const SCARE_MS = 2000;
+
+const scareBox = document.getElementById('jumpscare');
+const scareImg = scareBox.querySelector('img');
+const scareSound = new Audio('blink/scare.mp3');
+scareSound.preload = 'auto';
+new Image().src = scareImg.src;          // preload so it appears instantly
+
+// lowercase, turn punctuation into spaces, so "Word!!" still matches
+const norm = (s) => ' ' + s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+const scareList = SCARE_WORDS.map((w) => norm(w));
+const shouldScare = (text) => {
+  const t = norm(text);
+  return scareList.some((w) => t.includes(w));
+};
+
+let scaring = false;
+function jumpscare() {
+  if (scaring) return;
+  scaring = true;
+  scareBox.hidden = false;
+  scareSound.currentTime = 0;
+  scareSound.play().catch(() => {});     // plays because sending is a user action
+  setTimeout(() => {
+    scareBox.hidden = true;
+    scareSound.pause();
+    scaring = false;
+  }, SCARE_MS);
+}
+
+  // ---------- send ----------
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = chatText.value.trim().slice(0, 200);
+    if (!text || !myName) return;
+
+    if (shouldScare(text)) {        // <-- new: block the message and scare them
+      chatText.value = '';
+      jumpscare();
+      return;
+    }
+
+    chatSend.disabled = true;
+    try {
+      await push(ref(db, 'messages'), {
+        uid: uid, name: myName, text: clean(text), time: serverTimestamp(),
+      });
+      chatText.value = '';
+    } catch (err) {}
+    setTimeout(() => { chatSend.disabled = false; }, 3000);   // spam cooldown
+  });
+
+  // Enter sends, Shift+Enter makes a new line
+  chatText.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chatForm.requestSubmit(); }
+  });
+</script>
+
+</body>
+</html>

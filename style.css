@@ -1,0 +1,562 @@
+/* ---------- fonts ---------- */
+@font-face {
+  font-family: "MS San Serif";
+  src: url(https://cdn.glitch.me/9bbfdfb3-4bfa-4c39-8743-5621c8b9df21/MS%20Sans%20Serif.ttf);
+}
+@font-face {
+  font-family: DigiBop;
+  src: url(https://dl.dropbox.com/s/8maabpvuycdrlai/DigiBop-Regular.ttf);
+}
+@font-face {
+  font-family: "kiwi";
+  src: url(https://dl.dropbox.com/s/388cvx0do21kj3n/KiwiSoda.ttf);
+}
+@font-face {
+  font-family: pixel;
+  src: url(https://dl.dropbox.com/s/rwu0nhwc3rnbaqm/mspixel.otf);
+}
+
+.pixel {
+  font-family: pixel;
+}
+
+/* ---------- scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 16px;
+}
+::-webkit-scrollbar-corner {
+  background: #eee;
+}
+::-webkit-scrollbar-track:vertical {
+  background: linear-gradient(90deg, #e5e5e5, #f0f0f0 20%);
+}
+::-webkit-scrollbar-thumb {
+  border: 1.5px solid #888;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 1px #fff, inset 0 1px 1px #fff;
+  background-color: #eee;
+}
+::-webkit-scrollbar-thumb:vertical {
+  background: url("https://dl.dropbox.com/s/9a29qbkza3gmgl7/scroll1.png"), linear-gradient(90deg, #eee 45%, #ddd 0, #bbb);
+  background-repeat: no-repeat;
+  background-size: 65% auto, cover;
+  background-position: center;
+}
+::-webkit-scrollbar-button:vertical:end:increment,
+::-webkit-scrollbar-button:vertical:start:decrement {
+  display: block;
+}
+::-webkit-scrollbar-button:vertical {
+  height: 15px;
+}
+::-webkit-scrollbar-button:vertical:start:decrement {
+  background: url("https://dl.dropbox.com/s/n9ji42h9hdgdtpc/scroll3.png"), linear-gradient(90deg, #e5e5e5, #f0f0f0 20%);
+  background-repeat: no-repeat;
+  background-size: 100% auto, cover;
+  background-position: center;
+  border-radius: 0 3px 0 0;
+}
+::-webkit-scrollbar-button:vertical:start:increment {
+  display: none;
+}
+::-webkit-scrollbar-button:vertical:end:decrement {
+  display: none;
+}
+::-webkit-scrollbar-button:vertical:end:increment {
+  background: url("https://dl.dropbox.com/s/cdcco6pih7n1lae/scroll4.png"), linear-gradient(90deg, #e5e5e5, #f0f0f0 20%);
+  background-repeat: no-repeat;
+  background-size: 100% auto, cover;
+  background-position: center;
+  border-radius: 0 0 3px 0;
+}
+
+/* ---------- body (bg can be a color or an image) ---------- */
+body {
+  --tile: 128px;   /* <-- set this to the tile's width in pixels */
+  overflow-x: hidden;
+  font-family: "MS San Serif";
+  background-image: url("Trees.png");
+  background-repeat: repeat;
+  background-size: var(--tile) auto;   /* tile drawn at this width */
+  background-attachment: fixed;
+  animation: bg-scroll 60s linear infinite;
+}
+
+@keyframes bg-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: calc(var(--tile) * -1) 0; }
+}
+
+/* ---------- jumpscare ---------- */
+#jumpscare {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;          /* above everything */
+  background: black;
+}
+#jumpscare[hidden] { display: none; }
+#jumpscare img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;       /* fills the screen; use "contain" to avoid cropping */
+  display: block;
+  animation: scare-shake .08s linear infinite;
+}
+@keyframes scare-shake {
+  0%   { transform: translate(0, 0) scale(1.05); }
+  25%  { transform: translate(-6px, 4px) scale(1.05); }
+  50%  { transform: translate(5px, -5px) scale(1.05); }
+  75%  { transform: translate(-4px, -3px) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1.05); }
+}
+
+/* ---------- site header (forest) ---------- */
+.site-header {
+  position: relative;
+  width: 100%;
+  padding: 22px 10px 26px;
+  text-align: center;
+  overflow: hidden;
+  /* moss green fading to deep pine, with the hard "gloss line" at 50% */
+  background: linear-gradient(180deg,
+    #a6e87a 0%, #4fae4e 48%, #1f7a3a 50%, #0e5a2c 80%, #06402B 100%);
+  border-bottom: 3px solid #032a1a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .45);
+}
+
+/* glossy highlight over the top half */
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.08));
+  pointer-events: none;
+}
+
+/* soft sunbeams slanting through the "trees" *//* soft sunbeams slanting through the "trees", scrolling left */
+.site-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -150px;              /* extra width so the slanted edges never show */
+  right: -150px;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 210, .14) 0 40px,
+    transparent 40px 110px   /* one full pattern = 110px */
+  );
+  transform: skewX(-15deg);
+  animation: beams-scroll 14s linear infinite;
+}
+
+@keyframes beams-scroll {
+  from { transform: skewX(-15deg) translateX(0); }
+  to   { transform: skewX(-15deg) translateX(-110px); }  /* must equal the 110px above */
+}
+
+/* the title itself */
+.site-header h1 {
+  position: relative;
+  z-index: 1;                       /* sits above the gloss and beams */
+  margin: 0;
+  font-family: "kiwi", "MS San Serif", sans-serif;
+  font-size: clamp(2rem, 8vw, 5rem);
+  letter-spacing: 2px;
+  color: white;
+  /* deep green outline + soft lime glow */
+  filter:
+    drop-shadow(0 2px 0 #032a1a)
+    drop-shadow(0 -1px 0 #032a1a)
+    drop-shadow(2px 0 0 #032a1a)
+    drop-shadow(-2px 0 0 #032a1a)
+    drop-shadow(0 0 10px rgba(204, 255, 124, .8));
+}
+
+/* ".com" in pale lime */
+.site-header h1 span {
+  color: #d9ff8a;
+}
+
+/* the browser's "hidden" attribute loses to display:flex without this */
+.chat-form[hidden] { display: none; }
+
+.chat-note {
+  font-family: pixel;
+  font-size: .85em;
+  line-height: 1.2em;
+}
+
+/* glowing owner name */
+.chat-who.chat-owner,
+.white .chat-who.chat-owner {
+  color: #06402B;
+  font-weight: bold;
+  text-shadow:
+    0 0 4px #CCFF7C,
+    0 0 8px #9fe11d,
+    0 0 14px #4fae4e;
+  animation: owner-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes owner-glow {
+  from { text-shadow: 0 0 3px #CCFF7C, 0 0 6px #9fe11d, 0 0 10px #4fae4e; }
+  to   { text-shadow: 0 0 6px #fff, 0 0 12px #9fe11d, 0 0 20px #4fae4e; }
+}
+
+/* ---------- page layout (CSS grid) ---------- */
+
+/* desktop: 3 columns = left boxes | theater | chat*/
+.container {
+  width: calc(100% - 20px);   /* FIXED: no more 950px cap */
+  margin: 45px auto;
+  display: grid;
+  grid-template-columns: 202px minmax(0, 1fr) 208px;
+  gap: 10px;
+  align-items: start;
+}
+
+/* left column: any box you add in here stacks automatically */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* phones / narrow screens: one column (boxes, then theater, then chat) */
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+    margin: 15px auto;
+  }
+  .side {
+    display: grid;
+    /* as many boxes per row as will fit, centered */
+    grid-template-columns: repeat(auto-fit, 202px);
+    justify-content: center;
+  }
+}
+
+/* ---------- one: pixel---------- */
+
+.one {
+  position: relative;   /* keeps the "mood" text positioned inside this box */
+  background: #CCFF7C;
+  background: linear-gradient(180deg, rgba(204, 255, 124, 1) 0%, rgba(255, 255, 255, 1) 50%);
+  border: 1px solid black;
+  border-radius: 5px;
+  height: 95px;
+  padding: 5px;
+  font-size: 1.125em;
+}
+
+/* positioning for the "mood" text + pixels */
+.oneone {
+  position: absolute;
+  top: 2.5em;
+  left: 60px;
+}
+
+/* ---------- two ---------- */
+
+.two {
+  background: white;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  height: 290px;
+}
+
+/* container inside "two" (drop shadow) */
+.twotwo {
+  background: #06402B;
+  width: 160px;
+  height: 235px;
+  border-radius: 5px;
+  padding: 15px;
+  margin-top: 1px;
+  margin-left: 1px;
+  margin-bottom: 2.75px;
+  box-shadow: 0 0 8px 8px white inset;
+}
+
+/* container inside "twotwo" with the info text */
+.hello {
+  background: white;
+  width: 145px;
+  height: 195px;
+  padding: 5px;
+  margin-top: 5px;
+  margin-left: 1px;
+  margin-bottom: 5px;
+  border: 2px inset #06402B;
+  box-shadow: inset 13px 0 6px -10px rgb(66 66 66 / 30%), inset -13px 0 6px -10px rgb(66 66 66 / 30%), inset 0 13px 6px -10px #f0f0f0, inset 0 0 0 -10px rgb(66 66 66 / 30%);
+  overflow-y: scroll;
+  font-size: 1.125em;
+  line-height: 1.375em;
+}
+
+/* the tubi text, styled differently */
+tubi {
+  font-family: "kiwi";
+  font-size: 1.375em;
+  color: white;
+  font-weight: bold;
+  filter: drop-shadow(0px 1px black) drop-shadow(0 -1px black) drop-shadow(1px 0 black) drop-shadow(-1px 0 black) drop-shadow(0px 1px #9fe11d) drop-shadow(0 -1px #9fe11d) drop-shadow(1px 0 #9fe11d) drop-shadow(-1px 0 #9fe11d);
+}
+
+/* ---------- three (phone) ---------- */
+.three {
+  background: #FFF;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(0, 60, 140, 1) 100%);
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  height: 142px;
+}
+
+.phone {
+  box-shadow: inset 13px 0 6px -10px rgb(66 66 66 / 30%), inset -13px 0 6px -10px rgb(66 66 66 / 30%), inset 0 13px 6px -10px #f0f0f0, inset 0 0 0 -10px rgb(66 66 66 / 30%);
+  background: white;
+  border: 1px solid black;
+  width: 175px;
+  height: 127px;
+  padding: 5px;
+  margin-top: 2px;
+  margin-left: 2px;
+}
+
+
+/* ---------- main (CENTER: the theater) ---------- */
+
+.main {
+  background: white;
+  border: 1px solid black;
+  border-radius: 5px;
+  min-width: 0;
+}
+
+/* make 7.css behave how we want */
+.window {
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 5px !important;
+  padding: 5px !important;
+  margin: 0 !important;
+  background: #06402B !important;
+}
+
+.window::before,
+.window::after {
+  display: none !important;
+}
+
+/* ---------- chat bubbles (used by the chat box) ---------- */
+
+.gray {
+  background: #e1e1e1;
+  padding: 5px;
+  line-height: 1.25em;
+  font-family: pixel;
+}
+.white {
+  background: white;
+  padding: 5px;
+  line-height: 1.25em;
+  font-family: pixel;
+}
+.chat-who {
+  display: block;
+  color: #0078c8;
+}
+.white .chat-who {
+  color: #ed7014;
+}
+
+/* ---------- blinkies marquee ---------- */
+.buttons-n-blinkers {
+  margin-top: 10px;
+  margin-left: 10px;
+  overflow: hidden;
+  position: relative;
+  height: 40px;
+}
+
+/* the moving strip: two identical groups side by side */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 20s linear infinite; /* duration is set by the script */
+}
+
+/* one group = your blinkies repeated enough to fill the marquee */
+.marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  padding-right: 4px;   /* keep equal to gap so the seam looks the same */
+}
+.marquee-group img {
+  display: block;
+}
+
+/* slide left by exactly one group, then loop (invisible jump) */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* pause on hover so links can be clicked */
+.buttons-n-blinkers:hover .marquee-track {
+  animation-play-state: paused;
+}
+.top-blinkie {
+  display: block;        /* gets rid of the small gap under inline images */
+  width: 100%;           /* fills the box's content area */
+  height: auto;          /* keeps the proportions */
+  image-rendering: pixelated; /* keeps the pixels crisp when it's scaled up */
+}
+
+/* ---------- movie theater (center) ---------- */
+
+/* the theater fills whatever width the center column has */
+.theater {
+  position: relative;
+  width: 100%;
+  padding: 26px 0 34px;   /* room for the valance on top and seats on the bottom */
+  box-sizing: border-box;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(255, 230, 150, .35), transparent 60%),
+    linear-gradient(180deg, #2a0a0a 0%, #120404 100%);
+}
+
+/* curtains: 8% each side, so the screen gets the other 84% */
+.curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8%;                 /* FIXED: was clamp(20px, 8%, 45px) */
+  background: repeating-linear-gradient(90deg, #7a0c14 0 8px, #b3121f 8px 16px, #7a0c14 16px 24px);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, .7);
+}
+.curtain.left  { left: 0;  border-radius: 0 0 40px 0; }
+.curtain.right { right: 0; border-radius: 0 0 0 40px; }
+
+/* top valance */
+.valance {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 18px;
+  background: linear-gradient(180deg, #d4a017, #8a6508);
+  border-bottom: 3px solid #5a0a10;
+  z-index: 3;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, .6);
+}
+
+.screen-frame {
+  position: relative;
+  width: min(84%, calc((100vh - 230px) * 16 / 9));
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  box-sizing: border-box;
+  border: 4px solid #111;
+  outline: 2px solid #444;
+  box-shadow: 0 0 25px 6px rgba(255, 255, 255, .45);
+  background: #000;
+  z-index: 2;
+}
+.screen-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* movie picker under the screen */
+.now-showing {
+  padding: 5px 8px;
+  background: #1a0505;
+  color: #ffd75e;
+  font-family: pixel;
+  border-top: 2px solid #d4a017;
+}
+.marquee-title {
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* prev / dropdown / next row */
+.theater-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.theater-controls button {
+  min-width: 0;
+  padding: 0 8px;
+  font-family: "Pixel";
+}
+.theater-controls select {
+  flex: 1;
+  min-width: 0;
+  font-family: "Pixel";
+}
+
+/* ---------- chat box (right column) ---------- */
+
+.chat {
+  height: 400px;
+  background: white;
+  border: 1px solid black;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.chat-header {
+  background: linear-gradient(180deg, #CCFF7C 0%, #ffffff 100%);
+  border-bottom: 1px solid black;
+  padding: 5px 8px;
+  font-size: 1.125em;
+  font-family: pixel;
+}
+
+/* scrolling message list */
+.chat-messages {
+  flex: 1;
+  overflow-y: scroll;
+  min-height: 0;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* the form at the bottom */
+.chat-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  background: #e1e1e1;
+  border-top: 1px solid #888;
+}
+.chat-form input,
+.chat-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: "MS San Serif";
+  resize: none;
+}
+.chat-form button {
+  font-family: "MS San Serif";
+  align-self: flex-end;
+}
